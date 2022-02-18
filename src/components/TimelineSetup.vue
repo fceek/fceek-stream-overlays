@@ -15,9 +15,6 @@ function pushNewTimelineItem() {
   timelineItems.value.push(newItem);
   console.log(newItem.description());
 }
-    
-timelineItems.value.push(new timelineItem(15, 30, 15, 40, "990000", "test1"));
-timelineItems.value.push(new timelineItem(15, 50, 16, 30, "990000", "test2"));
 
 const emit = defineEmits(["generate"]);
 function generateTimeline() {

@@ -7,12 +7,98 @@
     <title>Timeline</title>
   </head>
   <body>
-      <p id="data-exp"></p>
+      <div id="progress">
+        <img id="pointer" src="/timeline-pointer.png"/>
+      </div>
+      <canvas width="1100" height="32" id="view"></canvas>
   </body>
 
   <script>
-      const data = new URLSearchParams(window.location.search).get('data');
-      let dataExp = document.querySelector('#data-exp');
-      dataExp.innerHTML = data;
+    // load data and bind elements
+    const data = new URLSearchParams(window.location.search).get('data');
+    let timelineItems = JSON.parse(data);
+    let view = document.querySelector("#view");
+    let pointer = document.querySelector("#pointer");
+    let progress = document.querySelector("#progress");
+
+    // generate timeline base data
+    let lastItem  = timelineItems[timelineItems.length - 1];
+    let firstItem = timelineItems[0];
+    let startTime = firstItem.startHour * 60 + firstItem.startMin;
+    let endTime = lastItem.endHour * 60 + lastItem.endMin;
+    const scale = 1100 / (endTime - startTime); // how many pixels 1 min for
+
+    // setup canvas
+    const ctx = view.getContext("2d");
+    ctx.font = 'bold 20px sans-serif';
+
+    // draw it
+    timelineItems.forEach(drawRectWithItem);
+
+    // pointer ready
+    updatePointerPosition();
+    setInterval(updatePointerPosition, 60000)
+
+    function updatePointerPosition() {
+      let timeNow = new Date(Date.now());
+      let timeInMins = timeNow.getHours() * 60 + timeNow.getMinutes();
+      if (timeInMins > endTime) {
+        pointer.style.display = "none";
+        progress.innerHTML = "加班中..."
+        return;
+      }
+      movePointer((timeInMins - startTime) * scale);
+    }
+
+    function drawRectWithItem(item) {
+      // draw rect
+      ctx.fillStyle = '#' + item.color;
+      let startPos = ((item.startHour * 60 + item.startMin) - startTime) * scale;
+      let endPos = ((item.endHour * 60 + item.endMin) - startTime) * scale;
+      ctx.fillRect(startPos, 0, endPos - startPos, 32);
+
+      // draw text
+      ctx.fillStyle = "#000000";
+      let text = ctx.measureText(item.text);
+      ctx.fillText(item.text, (startPos + endPos - text.width) / 2, 24);
+    }
+
+    function movePointer(distance) {
+      pointer.style.left = distance + "px";
+    }
   </script>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+        Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    }
+
+    html, body, div {
+      padding: 0;
+      margin: 0;
+    }
+
+    div#progress {
+      width: 1100px;
+      height: 32px;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    img#pointer {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      outline: 0;
+      position: relative;
+      left: 100px;
+    }
+
+    canvas#view {
+      padding: 0;
+      margin: 0;
+      background-color: #888888;
+    }
+  </style>
 </html>

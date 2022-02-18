@@ -7,7 +7,7 @@ import TimelineSetup from './components/TimelineSetup.vue'
 
 function generateTimeline(_data: timelineItem[]) {
   let data = JSON.stringify(_data);
-  window.location.href = "./generated-timeline.html?data=" + data;
+  window.location.href = "/static/generated-timeline.html?data=" + data;
 }
 
 </script>
